@@ -1,20 +1,9 @@
-import {
-     Body,
-     Controller,
-     Delete,
-     Get,
-     Param,
-     Post,
-     Put,
-} from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Delete, Put, ParseIntPipe } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { UsersService } from './users.service';
 
-
-
 @Controller('users')
 export class UsersController {
-
      constructor(private usersService: UsersService) { }
 
      @Get()
@@ -23,7 +12,7 @@ export class UsersController {
      }
 
      @Get(':id')
-     findUser(@Param('id') id: string) {
+     findUser(@Param('id', ParseIntPipe) id: number) {
           return this.usersService.getUserById(id);
      }
 
@@ -33,15 +22,12 @@ export class UsersController {
      }
 
      @Delete(':id')
-     deleteUser(@Param('id') id: string) {
-          const position = this.usersService.delete(id);
+     deleteUser(@Param('id', ParseIntPipe) id: number) {
+          return this.usersService.delete(id);
      }
 
      @Put(':id')
-     updateUser(
-          @Param('id') id: string,
-          @Body() changes: UpdateUserDto
-     ) {
+     updateUser(@Param('id', ParseIntPipe) id: number, @Body() changes: UpdateUserDto) {
           return this.usersService.update(id, changes);
      }
 }

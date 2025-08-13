@@ -1,65 +1,58 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { User } from './user.model';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
+     constructor(
+          @InjectRepository(User)
+          private usersRepository: Repository<User>,
+     ) { }
 
-     private users: User[] = [
-          { id: '1', name: 'Sharon Doe', email: 'sharon.doe@example.com' },
-          { id: '2', name: 'Daniel Doe', email: 'daniel.doe@example.com' },
-          { id: '3', name: 'Alexander Doe', email: 'alexander.doe@example.com' },
-     ];
-
-     findAll(): User[] {
-          return this.users;
+     async findAll() {
+          const users = await this.usersRepository.find();
+          return users;
      }
 
-     getUserById(id: string): User {
-          const position = this.findOne(id);
-          const user = this.users[position];
-          if (user.id === '1') {
+     async getUserById(id: number) {
+          const user = await this.findOne(id);
+          if (user.id === 1) {
                throw new ForbiddenException('You are not allowed to access this user');
           }
           return user;
      }
 
-     create(user: CreateUserDto): User {
-          const id = `${new Date().getTime()}`;
-          const newUser = {
-               ...user,
-               id,
-          };
-          this.users.push(newUser);
-          return newUser;
+     async create(body: CreateUserDto) {
+          try {
+               const newUser = await this.usersRepository.save(body);
+               return newUser;
+          } catch {
+               throw new BadRequestException('Error creating user');
+          }
      }
 
-     update(id: string, changes: UpdateUserDto): User {
-          const position = this.findOne(id);
-          const user = this.users[position];
-
-          this.users[position] = {
-               ...user,
-               ...changes,
-          };
-
-          return this.users[position];
+     async update(id: number, changes: UpdateUserDto) {
+          const user = await this.findOne(id);
+          const updatedUser = this.usersRepository.merge(user, changes);
+          return this.usersRepository.save(updatedUser);
      }
 
-     delete(id: string): { message: string } {
-          const position = this.findOne(id);
-          this.users.splice(position, 1);
+     async delete(id: number) {
+          const user = await this.findOne(id);
+          if (!user) {
+               throw new NotFoundException(`User with id ${id} not found`);
+          }
+          await this.usersRepository.delete(user.id);
           return { message: 'User deleted' };
      }
 
-     private findOne(id: string): number {
-          const position = this.users.findIndex((user) => user.id === id);
-          if (position === -1) {
-               throw new NotFoundException({
-                    error: `User with id ${id} not found`,
-               });
+     private async findOne(id: number) {
+          const user = await this.usersRepository.findOneBy({ id });
+          if (!user) {
+               throw new NotFoundException(`User with id ${id} not found`);
           }
-          return position;
+          return user;
      }
-
 }
