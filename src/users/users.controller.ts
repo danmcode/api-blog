@@ -21,7 +21,6 @@ export class UsersController {
           return this.usersService.getProfileByUserId(id);
      }
 
-
      @Post()
      createUser(@Body() body: CreateUserDto) {
           return this.usersService.create(body);
