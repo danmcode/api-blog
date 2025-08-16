@@ -7,13 +7,23 @@ export class Profile {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'varchar', length: 255 })
+    @Column({
+        type: 'varchar',
+        length: 255
+    })
     name: string;
 
-    @Column({ type: 'varchar', length: 255 })
+    @Column({
+        type: 'varchar',
+        length: 255
+    })
     lastName: string;
 
-    @Column({ type: 'varchar', length: 255, nullable: true })
+    @Column({
+        type: 'varchar',
+        length: 255,
+        nullable: true
+    })
     avatar: string;
 
     @CreateDateColumn({
