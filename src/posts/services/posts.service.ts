@@ -17,7 +17,7 @@ export class PostsService {
       order: {
         createdAt: 'DESC',
       },
-      relations: ['user.profile']
+      relations: ['user.profile', 'categories']
     });
     return posts;
   }
@@ -25,7 +25,7 @@ export class PostsService {
   async findOne(id: number) {
     const post = await this.postsRepository.findOne({
       where: { id },
-      relations: ['user.profile']
+      relations: ['user.profile', 'categories']
     });
     if (!post) {
       throw new NotFoundException(`Post with id ${id} not found`);
@@ -37,7 +37,8 @@ export class PostsService {
     try {
       const newPost = await this.postsRepository.save({
         ...body,
-        user: { id: body.userId }
+        user: { id: body.userId },
+        categories: body.categoryIds.map(id => ({ id }))
       });
       return this.findOne(newPost.id);
     } catch (error) {
