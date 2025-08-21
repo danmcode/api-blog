@@ -58,11 +58,19 @@ export class PostsService {
 
   async remove(id: number) {
     try {
-      await this.findOne(id); // Verify post exists
+      await this.findOne(id);
       await this.postsRepository.delete(id);
       return { message: 'Post deleted' };
     } catch (error) {
       throw new BadRequestException('Error deleting post');
     }
+  }
+
+  async getPostsByCategoryId(categoryId: number) {
+    const posts = await this.postsRepository.find({
+      where: { categories: { id: categoryId } },
+      relations: ['user.profile']
+    });
+    return posts;
   }
 }
