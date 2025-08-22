@@ -23,7 +23,7 @@ export class Post {
 
     @Column({
         type: 'varchar',
-        length: 255,
+        length: 800,
         name: 'cover_image',
         nullable: true
     })
